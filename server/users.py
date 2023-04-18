@@ -1,33 +1,26 @@
 from contextvars import ContextVar
 
-import hashlib
-import hmac
-
-import config
 import db
-
+import config
 
 authorized_user: ContextVar[str | None] = ContextVar('authorized_user', default=None)
 
 
-def create_new_user(username: str, password: str):
-    hash_of_password = hash_password(password)
-    db.create_user(username, hash_of_password)
+def create_new_user(username: str):
+    db.create_user(username)
 
 
-def authenticate(username: str, password: str):
-    hash_of_password = db.get_user_password(username)
-    if is_correct_password(hash_of_password, password):
-        authorized_user.set(username)
+def authenticate(username: str):
+    if not db.is_user_exists(username):
+        db.create_user(username)
+    db.add_credits_to_user(username, config.CREDITS_ON_LOGIN)
+    authorized_user.set(username)
+    user = {
+        'name': username,
+        'balance': db.get_user_balance(username),
+        'items': db.get_user_inventory()
+    }
 
 
-def hash_password(password: str) -> bytes:
-    hash_of_password = hashlib.pbkdf2_hmac('sha256', password.encode(), config.SECRET_KEY.encode('utf-8'), 100000)
-    return hash_of_password
-
-
-def is_correct_password(hash_of_password: bytes, password: str) -> bool:
-    return hmac.compare_digest(
-        hash_of_password,
-        hashlib.pbkdf2_hmac('sha256', password.encode(), config.SECRET_KEY.encode('utf-8'), 100000)
-    )
+def get_all_users() -> tuple[str]:
+    return db.get_all_users() or ()

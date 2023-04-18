@@ -2,6 +2,8 @@ import socket
 import sys
 from select import select
 
+import users
+
 to_monitor = []  # файлы, за которыми следим
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,10 +31,19 @@ def send_message(client_socket):
     request = client_socket.recv(4096)  # обнаруженный запрос, 4096 - это размер буфера сообщения
 
     if request:
-        match request.decode("utf-8"):
+        message = request.decode("utf-8")
+        match message.split(';')[0]:
             case 'login':
-                print('login')
-                response = 'входи с уважением'
+                _, username = message.split(';')
+                users.authenticate(username=username)
+                response = f'Добро пожаловать, {username}!'
+            case 'get':
+                _, obj, item = message.split(';')
+                match obj:
+                    case 'users':
+                        match item:
+                            case 'username':
+                                response = ', '.join(users.get_all_users())
             case _:
                 print('ne login')
                 response = 'че?'
