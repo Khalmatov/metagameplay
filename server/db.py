@@ -42,5 +42,12 @@ def get_user_password(username: str):
     return res.fetchone()[0]
 
 
+def get_user_balance(username: str):
+    res = cursor.execute('SELECT password FROM credits WHERE username=?', (username,))
+    return res.fetchone()[0]
+
+
+
+
 def init():
     create_tables()
