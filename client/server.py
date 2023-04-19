@@ -1,4 +1,7 @@
+import json
 import socket as s
+
+from dto import User, UserItem
 
 
 class Server:
@@ -12,6 +15,13 @@ class Server:
         self.socket.send(message.encode('utf-8'))
         response = self.socket.recv(4096)
         return response.decode('utf-8')
+
+    @staticmethod
+    def get_user(username: str) -> User:
+        user = server.send_message(f'get;user;{username}')
+        user = User(**json.loads(user))
+        user.items = [UserItem(**item) for item in user.items]
+        return user
 
 
 server = Server()

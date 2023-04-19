@@ -1,9 +1,11 @@
 import sqlite3
+from typing import List, Any
+
+from dto import Item, UserItem
+
 
 con = sqlite3.connect('db.sqlite3')
 cursor = con.cursor()
-
-from dto import Item, Inventory
 
 
 def create_tables():
@@ -49,9 +51,9 @@ def create_user(username: str):
     return cursor.lastrowid
 
 
-def get_all_users() -> tuple[str] | None:
+def get_all_usernames() -> list[str]:
     res = cursor.execute('SELECT username FROM users')
-    return res.fetchone()
+    return [i[0] for i in res.fetchall()]
 
 
 def is_user_exists(username: str) -> bool:
@@ -59,24 +61,41 @@ def is_user_exists(username: str) -> bool:
     return res.fetchone()
 
 
-def add_credits_to_user(username: str, credits: int):
-    cursor.execute('UPDATE credits SET balance = balance + ? WHERE username = ?', (credits, username))
+def create_credits_of_user(username: str):
+    cursor.execute('INSERT INTO credits(username, balance) values (?, 0)', (username,))
+    con.commit()
+
+
+def add_credits_to_user(username: str, count: int):
+    cursor.execute('UPDATE credits SET balance = balance + ? WHERE username = ?', (count, username))
     con.commit()
 
 
 def get_user_balance(username: str) -> int:
-    res = cursor.execute('SELECT balance FROM users WHERE username=?', (username,))
+    res = cursor.execute('SELECT balance FROM credits WHERE username=?', (username,))
     return res.fetchone()[0]
 
 
-def get_user_inventory(username: str) -> list[Inventory]:
-    res = cursor.execute('SELECT item, count FROM inventory WHERE username=?', (username,))
-    return [Inventory(item=i[0], count=i[1]) for i in res.fetchall()]
+def get_user_items(username: str) -> list[UserItem]:
+    res = cursor.execute('''
+        SELECT inventory.item, inventory.count, items.price
+            FROM inventory
+            JOIN items
+                ON inventory.item = items.name
+            WHERE username=?
+    ''', (username,))
+    return [UserItem(name=item[0], count=item[1], price=item[2]) for item in res.fetchall()]
 
 
 def get_all_items() -> list[Item]:
     res = cursor.execute('SELECT name, price FROM items')
     return [Item(name=item[0], price=item[1]) for item in res.fetchall()]
+
+
+def get_item(item_name: str) -> Item:
+    resp = cursor.execute('SELECT name, price FROM items WHERE name=?', (item_name,))
+    name, price = resp.fetchone()
+    return Item(name=name, price=price)
 
 
 def add_item_to_user_inventory(username: str, item: Item, count: int = 1):

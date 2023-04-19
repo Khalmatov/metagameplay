@@ -1,8 +1,11 @@
+import json
 import socket
 import sys
 from select import select
 
 import users
+import shop
+import errors
 
 to_monitor = []  # файлы, за которыми следим
 
@@ -32,18 +35,37 @@ def send_message(client_socket):
 
     if request:
         message = request.decode("utf-8")
-        match message.split(';')[0]:
+        message = message.split(';')
+        print(f'{message=}')
+        match message[0]:
             case 'login':
-                _, username = message.split(';')
-                users.authenticate(username=username)
-                response = f'Добро пожаловать, {username}!'
+                _, username = message
+                user = users.authenticate(username=username)
+                response = user.as_json()
             case 'get':
-                _, obj, item = message.split(';')
+                _, obj, item = message
                 match obj:
+                    case 'user':
+                        user = users.get_user(username=item)
+                        response = user.as_json()
                     case 'users':
                         match item:
                             case 'username':
-                                response = ', '.join(users.get_all_users())
+                                response = ', '.join(users.get_all_usernames())
+                    case 'shop':
+                        match item:
+                            case 'items':
+                                items = shop.get_items()
+                                response = json.dumps([item.as_json() for item in items])
+            case 'set':
+                match message[1]:
+                    case 'shop':
+                        _, _, item, count = message
+                        try:
+                            user = shop.buy(item, int(count))
+                            response = user.as_json()
+                        except errors.InsufficientFundsException:
+                            response = 'InsufficientFunds'
             case _:
                 print('ne login')
                 response = 'че?'

@@ -2,14 +2,8 @@ import json
 from dataclasses import dataclass, asdict
 
 
-class BaseModel:
-    def as_json(self) -> str:
-        _dict = asdict(self)
-        return json.dumps(_dict, ensure_ascii=False)
-
-
 @dataclass
-class Item(BaseModel):
+class Item:
     name: str
     price: int
 
@@ -20,7 +14,11 @@ class UserItem(Item):
 
 
 @dataclass
-class User(BaseModel):
+class User:
     name: str
     balance: int
     items: list[UserItem]
+
+    def as_json(self) -> str:
+        _dict = asdict(self)
+        return json.dumps(_dict, ensure_ascii=False)
