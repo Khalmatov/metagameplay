@@ -66,6 +66,13 @@ def send_message(client_socket):
                             response = user.as_json()
                         except errors.InsufficientFundsException:
                             response = 'InsufficientFunds'
+            case 'sell':
+                _, item, count = message
+                try:
+                    user = shop.sell(item, int(count))
+                    response = user.as_json()
+                except errors.InsufficientFundsException:
+                    response = 'InsufficientFunds'
             case _:
                 print('ne login')
                 response = 'че?'

@@ -108,5 +108,19 @@ def add_item_to_user_inventory(username: str, item: Item, count: int = 1):
     con.commit()
 
 
+def get_user_item_count(username: str, item_name: str) -> int:
+    response = cursor.execute('SELECT count FROM inventory WHERE item=? AND username=?', (item_name, username))
+    if response := response.fetchone():
+        return response[0]
+    return 0
+
+
+def delete_item_from_user_inventory(username: str, item_name: str, count: int) -> None:
+    cursor.execute('''
+        UPDATE inventory SET count = count - ? WHERE username=? AND item=?
+        ''', (count, username, item_name))
+    con.commit()
+
+
 def init():
     create_tables()
