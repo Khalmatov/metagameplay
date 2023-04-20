@@ -2,7 +2,7 @@ from dto import Item, User
 
 import db
 from users import UserService
-import errors
+import exceptions
 
 
 def get_items() -> list[Item]:
@@ -15,7 +15,7 @@ def buy(item_name: str, count: int = 1) -> User:
     user_balance = db.get_user_balance(user.name)
     item = db.get_item(item_name)
     if user_balance < (item.price * count):
-        raise errors.InsufficientFundsException()
+        raise exceptions.InsufficientFundsException()
     db.add_item_to_user_inventory(username=user.name, item=item, count=count)
     user.balance -= item.price * count
     user.items = db.get_user_items(username=user.name)
@@ -28,7 +28,7 @@ def sell(item_name: str, count: int = 1) -> User:
     user_item_count = db.get_user_item_count(username=user.name, item_name=item_name)
 
     if count > user_item_count:
-        raise errors.InsufficientFundsException()
+        raise exceptions.InsufficientFundsException()
 
     db.delete_item_from_user_inventory(username=user.name, item_name=item_name, count=count)
     item = db.get_item(item_name)
