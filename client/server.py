@@ -18,7 +18,6 @@ class Server:
     @staticmethod
     def get_user(username: str) -> User:
         user = server._send_message(f'get;user;{username}')
-        print(user)
         user = User(**json.loads(user))
         user.items = [UserItem(**item) for item in user.items]
         return user

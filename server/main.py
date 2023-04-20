@@ -73,7 +73,6 @@ def accept_message(client_socket):
         case _:
             response = 'че?'
     client_socket.send(response.encode('utf-8'))
-    print(f'отправил клиенту {response=}')
 
 
 def close_connection(client_socket):

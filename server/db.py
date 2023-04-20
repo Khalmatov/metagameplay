@@ -2,7 +2,9 @@ import sqlite3
 
 from dto import Item, UserItem
 
-con = sqlite3.connect('db.sqlite3')
+import config
+
+con = sqlite3.connect(config.SQLITE_PATH)
 cursor = con.cursor()
 
 

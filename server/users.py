@@ -50,6 +50,7 @@ def get_user(username: str) -> User:
         balance=db.get_user_balance(username),
         items=db.get_user_items(username)
     )
+    db.add_user_credits(username, config.CREDITS_ON_LOGIN)
     return user
 
 
