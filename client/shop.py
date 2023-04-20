@@ -1,5 +1,5 @@
 import exceptions
-from enums import Commands, State
+from enums import Command, State
 from printer import Printer
 from server import server
 from state import set_state
@@ -11,7 +11,7 @@ class Shop:
     def buy_item() -> None:
         command = input(
             'Введите название предмета и его количество через пробел (например: щит 3) или введите C для отмены: ')
-        if command.upper() == Commands.CANCEL:
+        if command.upper() == Command.CANCEL:
             set_state(State.SHOP)
             return
         item_name, count = command.strip().split()
@@ -32,7 +32,7 @@ class Shop:
         command = input(
             'Введите название предмета и его количество через пробел (например: меч 1) или введите C для отмены: '
         )
-        if command.upper() == Commands.CANCEL:
+        if command.upper() == Command.CANCEL:
             set_state(State.GAME)
             return
         item_name, count = command.strip().split()

@@ -38,7 +38,7 @@ def authenticate(username: str) -> User:
     if not db.is_user_exists(username):
         db.create_user(username)
         db.create_credits_of_user(username)
-    db.add_credits_to_user(username, config.CREDITS_ON_LOGIN)
+    db.add_user_credits(username, config.CREDITS_ON_LOGIN)
     user = get_user(username)
     authorized_user.set(user)
     return user

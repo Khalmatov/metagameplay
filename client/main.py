@@ -1,6 +1,6 @@
 from typing import NoReturn
 
-from enums import State, Commands
+from enums import State, Command
 from printer import Printer
 from server import server
 from state import set_state, get_state
@@ -8,7 +8,7 @@ from user import UserService
 from shop import Shop
 
 
-def run_loop() -> NoReturn:
+def event_loop() -> NoReturn:
     while True:
         match get_state():
             case State.LOGIN:
@@ -19,15 +19,15 @@ def run_loop() -> NoReturn:
                 command = input('\nВведите действие: '
                                 'КУПИТЬ [B], ПРОДАТЬ [S], АССОРТИМЕНТ [A], ИНВЕНТАРЬ [I], НАЗАД [C], ВЫЙТИ [Q]: ')
                 match command.upper():
-                    case Commands.BUY:
+                    case Command.BUY:
                         set_state(State.BUY)
-                    case Commands.SELL:
+                    case Command.SELL:
                         set_state(State.SELL)
-                    case Commands.INVENTORY:
+                    case Command.INVENTORY:
                         Printer.print_inventory()
-                    case Commands.CANCEL:
+                    case Command.CANCEL:
                         set_state(State.GAME)
-                    case Commands.QUIT:
+                    case Command.QUIT:
                         print('До свидания!')
                         break
             case State.BUY:
@@ -37,14 +37,14 @@ def run_loop() -> NoReturn:
             case _:
                 command = input('\nВыберите действие: ПРОФИЛЬ [P], МАГАЗИН [M], СМЕНИТЬ АККАУНТ [L], ВЫЙТИ [Q]: ')
                 match command.upper():
-                    case Commands.PROFILE:
+                    case Command.PROFILE:
                         Printer.print_profile()
-                    case Commands.SHOP:
+                    case Command.SHOP:
                         Printer.print_shop()
                         set_state(State.SHOP)
-                    case Commands.LOGIN:
+                    case Command.LOGIN:
                         Printer.print_login()
-                    case Commands.QUIT:
+                    case Command.QUIT:
                         print('До свидания!')
                         break
 
@@ -56,7 +56,9 @@ def main():
         UserService.set_authorized_user(user)
         Printer.print_profile()
         set_state(State.GAME)
-    run_loop()
+    else:
+        set_state(State.LOGIN)
+    event_loop()
 
 
 if __name__ == '__main__':

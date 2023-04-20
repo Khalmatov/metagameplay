@@ -1,8 +1,6 @@
 import sqlite3
-from typing import List, Any
 
 from dto import Item, UserItem
-
 
 con = sqlite3.connect('db.sqlite3')
 cursor = con.cursor()
@@ -66,8 +64,13 @@ def create_credits_of_user(username: str):
     con.commit()
 
 
-def add_credits_to_user(username: str, count: int):
+def add_user_credits(username: str, count: int):
     cursor.execute('UPDATE credits SET balance = balance + ? WHERE username = ?', (count, username))
+    con.commit()
+
+
+def subtract_user_credits(username: str, count: int):
+    cursor.execute('UPDATE credits SET balance = balance - ? WHERE username = ?', (count, username))
     con.commit()
 
 
@@ -122,5 +125,6 @@ def delete_item_from_user_inventory(username: str, item_name: str, count: int) -
     con.commit()
 
 
-def init():
-    create_tables()
+def create_tables_if_not_exists():
+    if not cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND tbl_name='users'").fetchone():
+        create_tables()

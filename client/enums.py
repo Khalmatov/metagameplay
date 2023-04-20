@@ -9,7 +9,7 @@ class State(str, Enum):
     SELL = 'SELL'
 
 
-class Commands(str, Enum):
+class Command(str, Enum):
     PROFILE = 'P'
     SHOP = 'M'
     LOGIN = 'L'
